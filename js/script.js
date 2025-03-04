@@ -2,7 +2,12 @@ const chatsContainer = document.querySelector(".chats-container");
 const promptFrom = document.querySelector(".prompt-form");
 const promptInput = promptFrom.querySelector(".prompt-input");
 
+// API Setup
+const API_KEY = "AIzaSyDpOGY-5XqcUCtj14wRcnvLIe8umTN2g34";
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
 let userMessage = "";
+const chatHistory = []; // Menempatkan semua pesan bot dan user agar bot dapat tahu pesan sebelumnya
 
 // Function to create message elements
 const createMsgElement = (content, ...classes) => {
@@ -10,6 +15,40 @@ const createMsgElement = (content, ...classes) => {
   div.classList.add("message", ...classes);
   div.innerHTML = content;
   return div;
+};
+
+// Make the API call and generate the bot's response
+const generateResponse = async (botMsgDiv) => {
+  const textElement = botMsgDiv.querySelector(".message-text");
+
+  // Add user message to the chat history
+  chatHistory.push({
+    role: "user",
+    parts: [{ text: userMessage }],
+  });
+
+  // Template saat menggunakan API
+  try {
+    // Send the chat history to the API to get a response
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: chatHistory }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error.message);
+    }
+
+    console.log(data);
+    const responseText = data.candidates[0].content.parts[0].text
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .trim();
+    textElement.textContent = responseText;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // Handle the form submission
@@ -37,6 +76,7 @@ const handleFormSubmit = (e) => {
     `;
     const botMsgDiv = createMsgElement(botMsgHTML, "bot-message", "loading");
     chatsContainer.appendChild(botMsgDiv);
+    generateResponse(botMsgDiv);
   }, 600);
 };
 
