@@ -56,23 +56,26 @@
               class="prompt-input"
               required
             />
-
+            <!-- Tombol-tombol untuk input -->
             <div class="prompt-actions">
               <!-- File Upload Wrapper -->
               <div class="file-upload-wrapper">
                 <img src="#" class="file-preview" />
+                <!-- Untuk menambahkan file-->
                 <input
                   type="file"
                   accept="image/*, .pdf, .txt, .csv"
                   id="file-input"
                   hidden
                 />
+                <!-- Tombol saat file sudah diinput  -->
                 <button
                   type="button"
                   class="file-icon material-symbols-rounded"
                 >
                   description
                 </button>
+                <!-- Tombol untuk menambahkan file -->
                 <button
                   type="button"
                   id="add-file-btn"
@@ -80,6 +83,7 @@
                 >
                   attach_file
                 </button>
+                <!-- Tombol untuk membatalkan -->
                 <button
                   type="button"
                   id="cancel-file-btn"
@@ -89,12 +93,14 @@
                 </button>
               </div>
 
+              <!-- Tombol untuk mengirim atau menginput -->
               <button id="send-prompt-btn" class="material-symbols-rounded">
                 arrow_upward
               </button>
             </div>
           </form>
 
+          <!-- Tombol fitur tambahan -->
           <button id="theme-toggle-btn" class="material-symbols-rounded">
             light_mode
           </button>
