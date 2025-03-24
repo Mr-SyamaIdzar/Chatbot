@@ -2,6 +2,8 @@ const container = document.querySelector(".container");
 const chatsContainer = document.querySelector(".chats-container");
 const promptFrom = document.querySelector(".prompt-form");
 const promptInput = promptFrom.querySelector(".prompt-input");
+const fileInput = promptFrom.querySelector("#file-input");
+const fileUploadWrapper = promptFrom.querySelector(".file-upload-wrapper");
 
 // API Setup
 const API_KEY = "AIzaSyDpOGY-5XqcUCtj14wRcnvLIe8umTN2g34";
@@ -20,7 +22,8 @@ const createMsgElement = (content, ...classes) => {
 
 // Scroll to the bottom of the container
 // top: Posisi vertikal scroll yang ingin dicapai. Dalam hal ini, container.scrollHeight digunakan untuk menggulir ke bagian paling bawah.
-const scrollToBottom = () => container.scrollTo({ top: container.scrollHeight, behavior: "smooth"})
+const scrollToBottom = () =>
+  container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
 
 // Simulate typing effect for bot reponses
 const typingEffect = (text, textElement, botMsgDiv) => {
@@ -107,4 +110,29 @@ const handleFormSubmit = (e) => {
   }, 600);
 };
 
+// Handle file input change (file upload)
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  // Display the file preview in the prompt input
+  const isImage = file.type.startsWith("image/");
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+
+  reader.onload = (e) => {
+    // Clearing the file input so users can select the same file if they previously selescted and canceled it
+    fileInput.value = "";
+    fileUploadWrapper.querySelector(".file-preview").src = e.target.result;
+    fileUploadWrapper.classList.add(
+      "active",
+      isImage ? "img-attached" : "file-attached"
+    );
+  };
+});
+
 promptFrom.addEventListener("submit", handleFormSubmit);
+// Trigger the file input click when the add file button is clicked
+promptFrom
+  .querySelector("#add-file-btn")
+  .addEventListener("click", () => fileInput.click());
