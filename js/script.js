@@ -131,6 +131,11 @@ fileInput.addEventListener("change", () => {
   };
 });
 
+// Cancle file upload
+document.querySelector("#cancel-file-btn").addEventListener("click", () => {
+  fileUploadWrapper.classList.remove("active", "img-attached", "file-attached");
+});
+
 promptFrom.addEventListener("submit", handleFormSubmit);
 // Trigger the file input click when the add file button is clicked
 promptFrom
