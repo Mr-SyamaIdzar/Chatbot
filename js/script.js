@@ -9,8 +9,8 @@ const fileUploadWrapper = promptFrom.querySelector(".file-upload-wrapper");
 const API_KEY = "AIzaSyDpOGY-5XqcUCtj14wRcnvLIe8umTN2g34";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-let userMessage = "";
 const chatHistory = []; // Menempatkan semua pesan bot dan user agar bot dapat tahu pesan sebelumnya
+const userData = { message: "", file: {} };
 
 // Function to create message elements
 const createMsgElement = (content, ...classes) => {
@@ -48,11 +48,22 @@ const typingEffect = (text, textElement, botMsgDiv) => {
 const generateResponse = async (botMsgDiv) => {
   const textElement = botMsgDiv.querySelector(".message-text");
 
-  // Add user message to the chat history
-  // Menambahkan pesan pengguna ke array chatHistory dengan format yang sesuai untuk dikirim ke API.
+  // Add user message and file to the chat history
   chatHistory.push({
     role: "user",
-    parts: [{ text: userMessage }],
+    // Include the attached file data along with message in chat history, aligned Gemini required parameters
+    parts: [
+      { text: userData.message },
+      ...(userData.file.data
+        ? [
+            {
+              inline_data: (({ fileName, isImage, ...rest }) => rest)(
+                userData.file
+              ),
+            },
+          ]
+        : []),
+    ],
   });
 
   // Template saat menggunakan API
@@ -74,6 +85,14 @@ const generateResponse = async (botMsgDiv) => {
       .replace(/\*\*([^*]+)\*\*/g, "$1") // Menghapus tanda ** (bold markdown) dari teks menggunakan regex.
       .trim();
     typingEffect(responseText, textElement, botMsgDiv);
+
+    chatHistory.push({
+      role: "model",
+      // Include the attached file data along with message in chat history, aligned Gemini required parameters
+      parts: [{ text: responseText }],
+    });
+
+    console.log(chatHistory);
   } catch (error) {
     console.log(error);
   }
@@ -82,12 +101,14 @@ const generateResponse = async (botMsgDiv) => {
 // Handle the form submission
 const handleFormSubmit = (e) => {
   e.preventDefault();
-  userMessage = promptInput.value.trim();
+  const userMessage = promptInput.value.trim();
   if (!userMessage) {
     return;
   }
 
   promptInput.value = "";
+  // Adding the user message in the userData object
+  userData.message = userMessage;
 
   // Generate user message HTML and add in the chats container
   const userMsgHTML = `<p class="message-text"></p>`;
@@ -123,11 +144,20 @@ fileInput.addEventListener("change", () => {
   reader.onload = (e) => {
     // Clearing the file input so users can select the same file if they previously selescted and canceled it
     fileInput.value = "";
+    const base64String = e.target.result.split(",")[1]; // Gemini only receives the base64 string on the file
     fileUploadWrapper.querySelector(".file-preview").src = e.target.result;
     fileUploadWrapper.classList.add(
       "active",
       isImage ? "img-attached" : "file-attached"
     );
+
+    // Storefile data in userData obj
+    userData.file = {
+      fileName: file.name,
+      data: base64String,
+      mime_type: file.type,
+      isImage,
+    };
   };
 });
 
