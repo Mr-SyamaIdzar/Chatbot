@@ -95,6 +95,8 @@ const generateResponse = async (botMsgDiv) => {
     console.log(chatHistory);
   } catch (error) {
     console.log(error);
+  } finally {
+    userData.file = {};
   }
 };
 
@@ -107,13 +109,19 @@ const handleFormSubmit = (e) => {
   }
 
   promptInput.value = "";
-  // Adding the user message in the userData object
-  userData.message = userMessage;
+  userData.message = userMessage; // Adding the user message in the userData object
+  fileUploadWrapper.classList.remove("active", "img-attached", "file-attached"); // Hiding the file preview once the message is sent
 
   // Generate user message HTML and add in the chats container
-  const userMsgHTML = `<p class="message-text"></p>`;
-  const userMsgDiv = createMsgElement(userMsgHTML, "user-message");
+  const userMsgHTML = `<p class="message-text"></p> ${
+    userData.file.data // Adding the attachment in the message whether it's img or other file
+      ? userData.file.isImage
+        ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" class="img-attachment">`
+        : `<p class="file-attachment"><span class="material-symbols-rounded">description</span>${userData.file.fileName}</p>`
+      : ""
+  }`;
 
+  const userMsgDiv = createMsgElement(userMsgHTML, "user-message");
   userMsgDiv.querySelector(".message-text").textContent = userMessage;
   chatsContainer.appendChild(userMsgDiv);
   scrollToBottom();
@@ -163,6 +171,8 @@ fileInput.addEventListener("change", () => {
 
 // Cancle file upload
 document.querySelector("#cancel-file-btn").addEventListener("click", () => {
+  // Clearing the file data once the upload is canceled or the response is generated
+  userData.file = {};
   fileUploadWrapper.classList.remove("active", "img-attached", "file-attached");
 });
 
