@@ -9,6 +9,7 @@ const fileUploadWrapper = promptFrom.querySelector(".file-upload-wrapper");
 const API_KEY = "AIzaSyDpOGY-5XqcUCtj14wRcnvLIe8umTN2g34";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
+let typingInterval, controller
 const chatHistory = []; // Menempatkan semua pesan bot dan user agar bot dapat tahu pesan sebelumnya
 const userData = { message: "", file: {} };
 
@@ -32,7 +33,7 @@ const typingEffect = (text, textElement, botMsgDiv) => {
   let wordIndex = 0;
 
   // Set an interval to type each word
-  const typingInterval = setInterval(() => {
+  typingInterval = setInterval(() => {
     if (wordIndex < words.length) {
       textElement.textContent +=
         (wordIndex === 0 ? "" : " ") + words[wordIndex++];
@@ -47,6 +48,7 @@ const typingEffect = (text, textElement, botMsgDiv) => {
 // Make the API call and generate the bot's response
 const generateResponse = async (botMsgDiv) => {
   const textElement = botMsgDiv.querySelector(".message-text");
+  controller = new AbortController()
 
   // Add user message and file to the chat history
   chatHistory.push({
@@ -73,6 +75,7 @@ const generateResponse = async (botMsgDiv) => {
       method: "POST",
       headers: { "Content-Type": "application/json" }, // Menetapkan tipe konten sebagai application/json
       body: JSON.stringify({ contents: chatHistory }), // Mengirim riwayat chat (chatHistory) sebagai JSON.
+      signal: controller.signal // Attaching the controller to terminate the fatch request when the "Stop Response" button is clicked
     });
 
     const data = await response.json();
@@ -174,6 +177,14 @@ document.querySelector("#cancel-file-btn").addEventListener("click", () => {
   // Clearing the file data once the upload is canceled or the response is generated
   userData.file = {};
   fileUploadWrapper.classList.remove("active", "img-attached", "file-attached");
+});
+
+// Stop ongoing bot response
+document.querySelector("#stop-response-btn").addEventListener("click", () => {
+  // Clearing the file data once the upload is canceled or the response is generated
+  userData.file = {};
+  controller?.abort()
+  clearInterval(typingInterval)
 });
 
 promptFrom.addEventListener("submit", handleFormSubmit);
