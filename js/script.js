@@ -9,7 +9,7 @@ const fileUploadWrapper = promptFrom.querySelector(".file-upload-wrapper");
 const API_KEY = "AIzaSyDpOGY-5XqcUCtj14wRcnvLIe8umTN2g34";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-let typingInterval, controller
+let typingInterval, controller;
 const chatHistory = []; // Menempatkan semua pesan bot dan user agar bot dapat tahu pesan sebelumnya
 const userData = { message: "", file: {} };
 
@@ -37,10 +37,11 @@ const typingEffect = (text, textElement, botMsgDiv) => {
     if (wordIndex < words.length) {
       textElement.textContent +=
         (wordIndex === 0 ? "" : " ") + words[wordIndex++];
-      botMsgDiv.classList.remove("loading");
       scrollToBottom(); //  Digunakan untuk menggulir halaman ke bagian bawah setelah teks ditambahkan.
     } else {
       clearInterval(typingInterval);
+      botMsgDiv.classList.remove("loading");
+      document.body.classList.remove("bot-responding");
     }
   }, 40);
 };
@@ -48,7 +49,7 @@ const typingEffect = (text, textElement, botMsgDiv) => {
 // Make the API call and generate the bot's response
 const generateResponse = async (botMsgDiv) => {
   const textElement = botMsgDiv.querySelector(".message-text");
-  controller = new AbortController()
+  controller = new AbortController();
 
   // Add user message and file to the chat history
   chatHistory.push({
@@ -75,7 +76,7 @@ const generateResponse = async (botMsgDiv) => {
       method: "POST",
       headers: { "Content-Type": "application/json" }, // Menetapkan tipe konten sebagai application/json
       body: JSON.stringify({ contents: chatHistory }), // Mengirim riwayat chat (chatHistory) sebagai JSON.
-      signal: controller.signal // Attaching the controller to terminate the fatch request when the "Stop Response" button is clicked
+      signal: controller.signal, // Attaching the controller to terminate the fatch request when the "Stop Response" button is clicked
     });
 
     const data = await response.json();
@@ -113,6 +114,7 @@ const handleFormSubmit = (e) => {
 
   promptInput.value = "";
   userData.message = userMessage; // Adding the user message in the userData object
+  document.body.classList.add("bot-responding");
   fileUploadWrapper.classList.remove("active", "img-attached", "file-attached"); // Hiding the file preview once the message is sent
 
   // Generate user message HTML and add in the chats container
@@ -183,8 +185,10 @@ document.querySelector("#cancel-file-btn").addEventListener("click", () => {
 document.querySelector("#stop-response-btn").addEventListener("click", () => {
   // Clearing the file data once the upload is canceled or the response is generated
   userData.file = {};
-  controller?.abort()
-  clearInterval(typingInterval)
+  controller?.abort();
+  clearInterval(typingInterval);
+  chatsContainer.querySelector(".bot-message.loading").classList.remove("loading");
+  document.body.classList.remove("bot-responding");
 });
 
 promptFrom.addEventListener("submit", handleFormSubmit);
