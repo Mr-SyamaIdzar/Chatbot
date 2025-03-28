@@ -95,10 +95,15 @@ const generateResponse = async (botMsgDiv) => {
       // Include the attached file data along with message in chat history, aligned Gemini required parameters
       parts: [{ text: responseText }],
     });
-
-    console.log(chatHistory);
   } catch (error) {
-    console.log(error);
+    textElement.style.color = "#d62939";
+    textElement.textContent =
+      error.name === "AbortError"
+        ? "Response generation stopped."
+        : error.message;
+    botMsgDiv.classList.remove("loading");
+    document.body.classList.remove("bot-responding");
+    scrollToBottom();
   } finally {
     userData.file = {};
   }
