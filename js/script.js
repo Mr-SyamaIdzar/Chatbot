@@ -108,7 +108,8 @@ const generateResponse = async (botMsgDiv) => {
 const handleFormSubmit = (e) => {
   e.preventDefault();
   const userMessage = promptInput.value.trim();
-  if (!userMessage) {
+  // Jika inputan kosong atau saat program sedang berjalan, tombol send tidak mengrimikan perintah yang baru sebelum yang lama selesai
+  if (!userMessage || document.body.classList.contains("bot-responding")) {
     return;
   }
 
@@ -174,6 +175,8 @@ fileInput.addEventListener("change", () => {
   };
 });
 
+// BUTTON FUNCTION
+
 // Cancle file upload
 document.querySelector("#cancel-file-btn").addEventListener("click", () => {
   // Clearing the file data once the upload is canceled or the response is generated
@@ -187,7 +190,16 @@ document.querySelector("#stop-response-btn").addEventListener("click", () => {
   userData.file = {};
   controller?.abort();
   clearInterval(typingInterval);
-  chatsContainer.querySelector(".bot-message.loading").classList.remove("loading");
+  chatsContainer
+    .querySelector(".bot-message.loading")
+    .classList.remove("loading");
+  document.body.classList.remove("bot-responding");
+});
+
+// Delete all chats
+document.querySelector("#delete-chats-btn").addEventListener("click", () => {
+  chatHistory.length = 0;
+  chatsContainer.innerHTML = "";
   document.body.classList.remove("bot-responding");
 });
 
