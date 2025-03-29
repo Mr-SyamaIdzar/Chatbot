@@ -17,6 +17,16 @@
   --scrollbar-color: #626a7f;
 }
 
+body.light-theme {
+  --text-color: #090c13;
+  --subheading-color: #7b8cae;
+  --placeholder-color: #606982;
+  --primary-color: #f3f7ff;
+  --secondary-color: #dce6f9;
+  --secondary-hover-color: #d2ddf2;
+  --scrollbar-color: #a2aac2;
+}
+
 body {
   color: var(--text-color);
   background: var(--primary-color);
@@ -197,7 +207,7 @@ body {
   padding: 10px;
   margin-top: -7px;
   border-radius: 13px 3px 13px 13px;
-  background: var(--secondary-color)
+  background: var(--secondary-color);
 }
 
 .user-message .file-attachment span {
@@ -312,12 +322,12 @@ body {
   color: #1d7efd;
 }
 
-.prompt-form  #stop-response-btn,
+.prompt-form #stop-response-btn,
 body.bot-responding .prompt-form .file-upload-wrapper {
   display: none;
 }
 
-body.bot-responding .prompt-form  #stop-response-btn {
+body.bot-responding .prompt-form #stop-response-btn {
   display: block;
 }
 

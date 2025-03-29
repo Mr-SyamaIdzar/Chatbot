@@ -4,6 +4,7 @@ const promptFrom = document.querySelector(".prompt-form");
 const promptInput = promptFrom.querySelector(".prompt-input");
 const fileInput = promptFrom.querySelector("#file-input");
 const fileUploadWrapper = promptFrom.querySelector(".file-upload-wrapper");
+const themeToggle = document.querySelector("#theme-toggle-btn");
 
 // API Setup
 const API_KEY = "AIzaSyDpOGY-5XqcUCtj14wRcnvLIe8umTN2g34";
@@ -206,6 +207,11 @@ document.querySelector("#delete-chats-btn").addEventListener("click", () => {
   chatHistory.length = 0;
   chatsContainer.innerHTML = "";
   document.body.classList.remove("bot-responding");
+});
+
+themeToggle.addEventListener("click", () => {
+  const isLightTheme = document.body.classList.toggle("light-theme");
+  themeToggle.textContent = isLightTheme ? "dark_mode" : "light_mode"; // Mengubah icon
 });
 
 promptFrom.addEventListener("submit", handleFormSubmit);
